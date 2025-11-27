@@ -114,6 +114,8 @@ export default function App() {
   const [postConfirmed, setPostConfirmed] = useState(false);
   const [pointsAnimation, setPointsAnimation] = useState(null);
   const [error, setError] = useState(null);
+  // New state for selected image
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const savedPoints = localStorage.getItem('magicCaptionPoints');
@@ -145,6 +147,7 @@ export default function App() {
     setLocalImage(null);
     setImageLoadStatus({});
     setError(null);
+    setSelectedImage(null);
 
     try {
       // IN VS CODE, this fetch call works because you have the backend API file.
@@ -181,6 +184,7 @@ export default function App() {
     if (!results || isImageLoading) return;
     setIsImageLoading(true);
     setImageLoadStatus({});
+    setSelectedImage(null);
     
     try {
        if (!results.image_prompts) return;
@@ -201,19 +205,32 @@ export default function App() {
     setLocalImage(null);
     setIsImageLoading(false); 
     setImageLoadStatus({});
+    setSelectedImage(null);
   };
 
-  const postToFarcaster = async (image) => {
-    if (!results) return;
+  // Just sets the selected image state
+  const selectImage = (image) => {
+    setSelectedImage(image);
+  };
+
+  // Actually triggers the post
+  const triggerPost = async () => {
+    if (!results || !selectedImage) return;
+
     awardPoints(10, "Post Created");
     setPostConfirmed(true);
     setTimeout(() => setPostConfirmed(false), 1500);
 
-    // IN VS CODE, USE 'sdk' INSTEAD OF 'mockSdk'
-    if (image && !image.startsWith('blob:')) {
-      await mockSdk.actions.composeCast({ text: results.caption, embeds: [image] });
-    } else {
-      await mockSdk.actions.composeCast({ text: results.caption });
+    try {
+      // IN VS CODE, USE 'sdk' INSTEAD OF 'mockSdk'
+      if (selectedImage && !selectedImage.startsWith('blob:')) {
+        await mockSdk.actions.composeCast({ text: results.caption, embeds: [selectedImage] });
+      } else {
+        await mockSdk.actions.composeCast({ text: results.caption });
+      }
+    } catch(e) {
+      console.error("SDK Error:", e);
+      setError("Could not open composer. Try again.");
     }
   };
 
@@ -222,7 +239,14 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans overflow-hidden relative pb-8 flex flex-col items-center">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#2a1b3d] via-[#0f172a] to-black pointer-events-none"></div>
-      <input type="file" ref={fileInputRef} onChange={(e) => { if(e.target.files[0]) setLocalImage(URL.createObjectURL(e.target.files[0])); }} accept="image/*" className="hidden" />
+      <input type="file" ref={fileInputRef} onChange={(e) => { 
+          if(e.target.files[0]) {
+            const url = URL.createObjectURL(e.target.files[0]);
+            setLocalImage(url);
+            setSelectedImage(url); // Auto-select local upload
+          } 
+      }} accept="image/*" className="hidden" />
+      
       {showIntro && <StoryIntro onComplete={finishIntro} />}
 
       {pointsAnimation && (
@@ -308,6 +332,7 @@ export default function App() {
               </div>
               <p className="text-lg leading-relaxed text-slate-200 whitespace-pre-line">{results.caption}</p>
             </div>
+
             <div className="space-y-4">
                <div className="flex items-center justify-center gap-2">
                   <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Select Image (+10 <span className="text-yellow-500">✨</span>)</h3>
@@ -315,26 +340,53 @@ export default function App() {
                      {isImageLoading ? <RotateCcw className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
                   </button>
                </div>
+
                <div className="grid grid-cols-2 gap-3 relative">
                  {isImageLoading && <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-30 flex items-center justify-center rounded-2xl col-span-2"><div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" /></div>}
                  
-                 <button onClick={() => fileInputRef.current.click()} className="relative overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-200 aspect-square flex flex-col items-center justify-center group active:scale-95 bg-slate-900/70 border-slate-700 hover:border-slate-500">
-                   {localImage ? <img src={localImage} className="w-full h-full object-cover absolute inset-0" /> : <div className="bg-slate-800 p-3 rounded-full mb-2"><Upload className="w-6 h-6 text-slate-400" /></div>}
+                 <button onClick={() => fileInputRef.current.click()} className={`relative overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-200 aspect-square flex flex-col items-center justify-center group active:scale-95 bg-slate-900/70 border-slate-700 hover:border-slate-500 ${selectedImage === localImage ? 'border-purple-500 ring-2 ring-purple-500/50' : ''}`}>
+                   {localImage ? (
+                     <>
+                       <img src={localImage} className="w-full h-full object-cover absolute inset-0" alt="Local upload" />
+                       <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 hover:opacity-100 z-10 transition-opacity p-2 text-center">
+                         <span className="font-bold text-sm text-white">Select</span>
+                       </div>
+                     </>
+                   ) : (
+                     <>
+                       <div className="bg-slate-800 p-3 rounded-full mb-2 group-hover:bg-slate-700 transition-colors"><Upload className="w-6 h-6 text-slate-400" /></div>
+                       <span className="text-sm font-medium text-slate-400">My Photo</span>
+                     </>
+                   )}
                  </button>
 
                  {results.images.map((img, idx) => {
                    const isImageLoaded = imageLoadStatus[img];
+                   const isSelected = selectedImage === img;
                    return (
-                     <button key={img} onClick={() => postToFarcaster(img)} className="relative group overflow-hidden rounded-2xl border-2 border-transparent hover:border-purple-500/50 aspect-square bg-slate-900 active:scale-95" disabled={!isImageLoaded}>
+                     <button key={img} onClick={() => selectImage(img)} className={`relative group overflow-hidden rounded-2xl border-2 transition-all duration-200 aspect-square bg-slate-900 active:scale-95 ${isSelected ? 'border-purple-500 ring-2 ring-purple-500/50 scale-[1.02]' : 'border-transparent hover:border-purple-500/50'}`} disabled={!isImageLoaded}>
                        {!isImageLoaded && <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2"><div className="w-6 h-6 border-3 border-white/50 border-t-purple-500 rounded-full animate-spin" /><span className="text-[10px] text-slate-400">Loading...</span></div>}
-                       <img src={img} onLoad={() => handleImageLoad(img)} className={`w-full h-full object-cover transition-opacity duration-500 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`} loading="lazy" />
-                       <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex flex-col items-center justify-end pb-4 z-20 transition-opacity ${isImageLoaded ? '' : 'hidden'}`}><span className="font-bold text-sm flex items-center gap-1 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30"><Send className="w-3 h-3" /> Post AI</span></div>
+                       <img src={img} onLoad={() => handleImageLoad(img)} className={`w-full h-full object-cover transition-opacity duration-500 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`} loading="lazy" alt={`AI generated ${idx}`} />
+                       {isSelected && (
+                          <div className="absolute inset-0 bg-purple-500/20 z-20 flex items-center justify-center">
+                            <div className="bg-purple-600 rounded-full p-1"><Send className="w-4 h-4 text-white" /></div>
+                          </div>
+                       )}
                      </button>
                    );
                  })}
                </div>
             </div>
-            <button onClick={handleReset} className="w-full py-4 text-slate-500 font-medium hover:text-white transition-all flex items-center justify-center gap-2 group hover:bg-slate-900 rounded-2xl active:scale-95"><RotateCcw className="w-4 h-4" /> Start Over</button>
+
+            {selectedImage ? (
+                <button onClick={triggerPost} className="w-full py-4 rounded-2xl font-bold text-lg shadow-2xl bg-gradient-to-br from-purple-600 to-blue-600 text-white hover:shadow-purple-500/30 active:scale-95 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-4">
+                    <Send className="w-5 h-5" /> Post to Farcaster
+                </button>
+            ) : (
+                <button onClick={handleReset} className="w-full py-4 text-slate-500 font-medium hover:text-white transition-all flex items-center justify-center gap-2 group hover:bg-slate-900 rounded-2xl active:scale-95">
+                    <RotateCcw className="w-4 h-4 group-hover:-rotate-180 transition-transform duration-500" /> Start Over
+                </button>
+            )}
           </div>
         )}
       </div>
