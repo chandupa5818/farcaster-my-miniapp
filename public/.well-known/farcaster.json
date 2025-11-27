@@ -1,39 +1,34 @@
 {
-  "accountAssociation": {
-    // ⚠️ IMPORTANT: I have preserved your actual signature here:
+  "accountAssociation": {  // these will be added in step 5
     "header": "eyJmaWQiOjk3MzM1MiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDRGY2VmYjQ5RDA4NjdGMzA0ZEJEZDg2N2JiQzk2MzBhN2UxM2NGMUEifQ",
     "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItbXktbWluaWFwcC0xazRvLnZlcmNlbC5hcHAifQ",
     "signature": "e3yjHMXxKsLkqyYF/l88NsH4ObCJ+hLb4mPUeciC4tYD4uQtySTlTkSRmjd3aKxGZM/K0ydvgB9pN/hdSaI8PRs="
   },
+  "baseBuilder": {
+    "ownerAddress": "0x906E1224ebe0f41537dcf026B1853C3Cf0Aba17a" // add your Base Account address here
+  },
   "miniapp": {
     "version": "1",
     "name": "Magic Caption",
-    "subtitle": "Viral AI Captions & Images",
-    "description": "Turn rough thoughts into perfect viral posts. Magic Caption uses AI to rewrite your text and generates matching images instantly.",
-    "primaryCategory": "social",
-    "homeUrl": "https://farcaster-my-miniapp-1k4o.vercel.app",
-    
-    // --- ICON & SPLASH ---
+    "homeUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/",
     "iconUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/logo.jpg",
-    "splashImageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/logo.jpg",
+    "splashImageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/heroimage.jpg",
     "splashBackgroundColor": "#0f172a",
-    
-    // --- TAGS & SHARING ---
-    "tags": [
-      "social",
-      "ai",
-      "content",
-      "tools",
-      "magic"
-    ],
-    "buttonTitle": "✨ Create Magic",
-    "heroImageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/hero_banner.jpg",
-    "castShareUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/share-cast",
     "webhookUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/api/webhook",
-
-    // --- OPEN GRAPH (SOCIAL PREVIEWS) ---
-    "ogTitle": "Magic Caption - Viral AI Posts",
-    "ogDescription": "Let AI rewrite your ideas into perfect viral posts.",
-    "ogImageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/hero_banner.jpg"
+    "subtitle": "Fast, fun, social",
+    "description": "Turn rough thoughts into perfect viral posts. Magic Caption uses AI to rewrite your text and generates matching images instantly.",
+    "screenshotUrls": [
+      "https://ex.co/s1.png",
+      "https://ex.co/s2.png",
+      "https://ex.co/s3.png"
+    ],
+    "primaryCategory": "social",
+    "tags": ["example", "miniapp", "baseapp"],
+    "heroImageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/heroimage.jpg",
+    "tagline": "Play instantly",
+    "ogTitle": "Magic Caption",
+    "ogDescription": "Challenge friends in real time.",
+    "ogImageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/heroimage.jpg",
+    "noindex": true
   }
-}}
+}
