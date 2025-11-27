@@ -10,15 +10,15 @@ import { Send, X, Upload, RotateCcw, Trophy, Sparkles, Briefcase, Smile, Zap, Al
 const GEMINI_API_KEY = ""; 
 
 // --- 🛠️ MOCK SDK (FOR PREVIEW ONLY - DELETE THIS IN VS CODE) ---
-// This allows the app to run here. In VS Code, you delete this and use the real import above.
+// This simulates the Farcaster app so you can test the UI here.
 const sdk = {
   actions: {
     ready: () => console.log("✅ SDK: Ready signal sent"),
     disableNativeGestures: () => console.log("🚫 SDK: Native gestures disabled"),
     composeCast: async ({ text, embeds }) => {
       console.log("📝 SDK: Opening Composer", { text, embeds });
-      // This alert simulates the real phone behavior
-      alert(`📱 OPENING FARCASTER COMPOSER\n\nCaption: ${text}\nEmbeds: ${embeds ? embeds.join(', ') : 'None'}`);
+      // This alert simulates the phone's native composer
+      alert(`📱 NATIVE COMPOSER OPENED\n\nCaption: ${text}\nEmbeds: ${embeds ? embeds.join(', ') : 'None'}`);
       return new Promise((resolve) => setTimeout(resolve, 500));
     },
     close: () => console.log("❌ SDK: Closing App"),
@@ -126,14 +126,7 @@ export default function App() {
     if (savedPoints) setPoints(parseInt(savedPoints));
 
     const init = async () => {
-      // 1. Disable native gestures (Real SDK call)
-      try { 
-        await sdk.actions.disableNativeGestures(); 
-      } catch (e) {
-        // Will fail in preview/web, that's expected
-      }
-      
-      // 2. Notify app is loaded
+      try { await sdk.actions.disableNativeGestures(); } catch (e) {}
       setTimeout(() => {
         sdk.actions.ready(); 
         setIsLoaded(true);
@@ -161,7 +154,7 @@ export default function App() {
     setSelectedImage(null);
 
     try {
-      // This will work on Vercel. In this preview, it triggers the fallback.
+      // This fetch will fail in this preview window but work on Vercel
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -176,7 +169,7 @@ export default function App() {
       setResults(data);
       awardPoints(10, "Idea Generated");
     } catch (e) {
-      console.log("Using offline fallback (Preview Mode)...");
+      console.log("Using offline fallback...");
       const fallbackData = generateSmartFallback(input);
       const fallbackImages = getImagesFromPrompts(fallbackData.image_prompts);
       setResults({
@@ -222,7 +215,6 @@ export default function App() {
     setSelectedImage(image);
   };
 
-  // --- ✅ THIS IS THE FIX: POSTING LOGIC ---
   const triggerPost = async () => {
     if (!results || !selectedImage) return;
 
@@ -232,19 +224,17 @@ export default function App() {
 
     try {
       if (selectedImage && !selectedImage.startsWith('blob:')) {
-        // AI IMAGE: Use 'embeds' to attach the URL
         await sdk.actions.composeCast({ 
             text: results.caption, 
             embeds: [selectedImage] 
         });
       } else {
-        // LOCAL IMAGE: Only send text (user must attach manually)
         await sdk.actions.composeCast({ 
             text: results.caption 
         });
       }
       
-      // sdk.actions.close(); // Optional: Close app after post
+      sdk.actions.close();
 
     } catch(e) {
       console.error("SDK Error:", e);
@@ -304,9 +294,13 @@ export default function App() {
       <div className="w-full max-w-md h-full flex flex-col flex-grow relative px-6 z-10 pt-10">
         {!results ? (
           <div className="flex flex-col flex-grow justify-center items-center animate-in fade-in duration-700 space-y-6">
-             <div className="relative">
-               <h1 className="text-4xl font-bold text-center tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-white/70 drop-shadow-lg">Magic Caption</h1>
-               <Sparkles className="absolute -top-4 -right-6 w-5 h-5 text-yellow-300 animate-pulse opacity-80" />
+             <div className="relative flex justify-center mb-4">
+                {/* 🖼️ LOGO PATH IN APP.JSX */}
+                <img 
+                    src="/.well-known/logo.jpg" 
+                    alt="Magic Caption Logo" 
+                    className="h-16 w-auto object-contain drop-shadow-2xl animate-in zoom-in duration-700" 
+                />
              </div>
 
              <div className="w-full bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-4 text-center shadow-2xl relative overflow-hidden">
