@@ -114,7 +114,6 @@ export default function App() {
   const [postConfirmed, setPostConfirmed] = useState(false);
   const [pointsAnimation, setPointsAnimation] = useState(null);
   const [error, setError] = useState(null);
-  // New state for selected image
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
@@ -208,29 +207,21 @@ export default function App() {
     setSelectedImage(null);
   };
 
-  // Just sets the selected image state
   const selectImage = (image) => {
     setSelectedImage(image);
   };
 
-  // Actually triggers the post
-  const triggerPost = async () => {
+  const postToFarcaster = async () => {
     if (!results || !selectedImage) return;
-
     awardPoints(10, "Post Created");
     setPostConfirmed(true);
     setTimeout(() => setPostConfirmed(false), 1500);
 
-    try {
-      // IN VS CODE, USE 'sdk' INSTEAD OF 'mockSdk'
-      if (selectedImage && !selectedImage.startsWith('blob:')) {
-        await mockSdk.actions.composeCast({ text: results.caption, embeds: [selectedImage] });
-      } else {
-        await mockSdk.actions.composeCast({ text: results.caption });
-      }
-    } catch(e) {
-      console.error("SDK Error:", e);
-      setError("Could not open composer. Try again.");
+    // IN VS CODE, USE 'sdk' INSTEAD OF 'mockSdk'
+    if (selectedImage && !selectedImage.startsWith('blob:')) {
+      await mockSdk.actions.composeCast({ text: results.caption, embeds: [selectedImage] });
+    } else {
+      await mockSdk.actions.composeCast({ text: results.caption });
     }
   };
 
@@ -243,7 +234,7 @@ export default function App() {
           if(e.target.files[0]) {
             const url = URL.createObjectURL(e.target.files[0]);
             setLocalImage(url);
-            setSelectedImage(url); // Auto-select local upload
+            setSelectedImage(url); 
           } 
       }} accept="image/*" className="hidden" />
       
@@ -259,7 +250,6 @@ export default function App() {
         </div>
       )}
       
-      {/* Error Overlay */}
       {error && (
          <div className="fixed top-20 left-4 right-4 z-50 bg-red-500/90 text-white p-4 rounded-xl flex items-center gap-3 animate-in slide-in-from-top-5 shadow-xl border border-red-400/50">
             <AlertCircle className="w-6 h-6 flex-shrink-0" />
@@ -268,7 +258,6 @@ export default function App() {
          </div>
       )}
 
-      {/* Post Confirmation */}
       {postConfirmed && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in">
            <div className="bg-purple-600 p-6 rounded-2xl flex flex-col items-center animate-in zoom-in-50">
@@ -379,7 +368,7 @@ export default function App() {
             </div>
 
             {selectedImage ? (
-                <button onClick={triggerPost} className="w-full py-4 rounded-2xl font-bold text-lg shadow-2xl bg-gradient-to-br from-purple-600 to-blue-600 text-white hover:shadow-purple-500/30 active:scale-95 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-4">
+                <button onClick={postToFarcaster} className="w-full py-4 rounded-2xl font-bold text-lg shadow-2xl bg-gradient-to-br from-purple-600 to-blue-600 text-white hover:shadow-purple-500/30 active:scale-95 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-4">
                     <Send className="w-5 h-5" /> Post to Farcaster
                 </button>
             ) : (
