@@ -195,7 +195,6 @@ export default function App() {
     setImageLoadStatus(prev => ({ ...prev, [url]: true }));
   };
 
-  // --- ✨ ADDED MISSING RESET FUNCTION ---
   const handleReset = () => {
     setInput('');
     setResults(null);
@@ -236,7 +235,7 @@ export default function App() {
         </div>
       )}
       
-      {/* Error Overlay (Only shows if critical error) */}
+      {/* Error Overlay */}
       {error && (
          <div className="fixed top-20 left-4 right-4 z-50 bg-red-500/90 text-white p-4 rounded-xl flex items-center gap-3 animate-in slide-in-from-top-5 shadow-xl border border-red-400/50">
             <AlertCircle className="w-6 h-6 flex-shrink-0" />
@@ -323,7 +322,7 @@ export default function App() {
                    {localImage ? <img src={localImage} className="w-full h-full object-cover absolute inset-0" /> : <div className="bg-slate-800 p-3 rounded-full mb-2"><Upload className="w-6 h-6 text-slate-400" /></div>}
                  </button>
 
-                 {results.images && results.images.map((img, idx) => {
+                 {results.images.map((img, idx) => {
                    const isImageLoaded = imageLoadStatus[img];
                    return (
                      <button key={img} onClick={() => postToFarcaster(img)} className="relative group overflow-hidden rounded-2xl border-2 border-transparent hover:border-purple-500/50 aspect-square bg-slate-900 active:scale-95" disabled={!isImageLoaded}>
