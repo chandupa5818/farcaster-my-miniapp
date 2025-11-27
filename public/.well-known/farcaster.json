@@ -1,0 +1,19 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjk...",
+    "payload": "eyJkb21haW4...",
+    "signature": "MHg1YjI..."
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Magic Caption",
+    "iconUrl": "[https://magic-caption.vercel.app/icon.png](https://magic-caption.vercel.app/icon.png)",
+    "homeUrl": "[https://magic-caption.vercel.app](https://magic-caption.vercel.app)",
+    "description": "Turn rough thoughts into viral posts with AI.",
+    "splashImageUrl": "[https://magic-caption.vercel.app/splash.png](https://magic-caption.vercel.app/splash.png)",
+    "splashBackgroundColor": "#0f172a",
+    "primaryCategory": "utility",
+    "requiredChains": [], 
+    "requiredCapabilities": []
+  }
+}
