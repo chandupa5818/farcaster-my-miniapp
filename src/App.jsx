@@ -1,19 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-// 👇 UNCOMMENT THIS LINE IN YOUR VS CODE PROJECT:
-// import sdk from '@farcaster/miniapp-sdk'; 
 import { Send, X, Upload, RotateCcw, Trophy, Sparkles, Briefcase, Smile, Zap, AlertCircle } from 'lucide-react';
+
+// --- 🚧 IMPORTANT INSTRUCTIONS FOR VS CODE 🚧 ---
+// 1. Run this command in terminal: npm install @farcaster/miniapp-sdk
+// 2. UNCOMMENT the line below when you paste this file into VS Code:
+// import sdk from '@farcaster/miniapp-sdk'; 
 
 // --- 🔑 CONFIGURATION ---
 const GEMINI_API_KEY = ""; 
 
 // --- 🛠️ MOCK SDK (FOR PREVIEW ONLY) ---
-// DELETE THIS SECTION WHEN MOVING TO VS CODE
-const mockSdk = {
+// ⚠️ DELETE THIS ENTIRE CONSTANT WHEN YOU MOVE TO VS CODE ⚠️
+const sdk = {
   actions: {
     ready: () => console.log("✅ SDK: Ready signal sent"),
-    disableNativeGestures: () => console.log("🚫 SDK: Gestures disabled"),
+    disableNativeGestures: () => console.log("🚫 SDK: Native gestures disabled"),
     composeCast: async ({ text, embeds }) => {
       console.log("📝 SDK: Opening Composer", { text, embeds });
+      // This alert simulates the phone's native composer
+      alert(`📱 OPENING FARCASTER COMPOSER\n\nCaption: ${text}\nImage: ${embeds ? embeds[0] : 'None'}`);
       return new Promise((resolve) => setTimeout(resolve, 500));
     },
     close: () => console.log("❌ SDK: Closing App"),
@@ -121,9 +126,16 @@ export default function App() {
     if (savedPoints) setPoints(parseInt(savedPoints));
 
     const init = async () => {
-      // IN VS CODE, USE: await sdk.actions.disableNativeGestures();
+      // 1. Disable native gestures
+      try { 
+        await sdk.actions.disableNativeGestures(); 
+      } catch (e) {
+        // console.log("Gestures not disabled (preview mode)");
+      }
+      
+      // 2. Notify Farcaster app is ready
       setTimeout(() => {
-        mockSdk.actions.ready(); // IN VS CODE, USE: sdk.actions.ready();
+        sdk.actions.ready(); 
         setIsLoaded(true);
       }, 300);
     };
@@ -149,8 +161,8 @@ export default function App() {
     setSelectedImage(null);
 
     try {
-      // IN VS CODE, this fetch call works because you have the backend API file.
-      // In this preview, it will fail and trigger the fallback, which is what we want for testing.
+      // In this preview, fetch will fail and trigger fallback (simulating offline mode)
+      // In Vercel/VS Code, this will hit your API and work perfectly.
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -165,7 +177,7 @@ export default function App() {
       setResults(data);
       awardPoints(10, "Idea Generated");
     } catch (e) {
-      console.log("Using offline fallback...");
+      console.log("Preview Mode: Using smart fallback...");
       const fallbackData = generateSmartFallback(input);
       const fallbackImages = getImagesFromPrompts(fallbackData.image_prompts);
       setResults({
@@ -211,17 +223,31 @@ export default function App() {
     setSelectedImage(image);
   };
 
-  const postToFarcaster = async () => {
+  // ✅ REAL POSTING LOGIC (Triggered by Button)
+  const triggerPost = async () => {
     if (!results || !selectedImage) return;
+
     awardPoints(10, "Post Created");
     setPostConfirmed(true);
     setTimeout(() => setPostConfirmed(false), 1500);
 
-    // IN VS CODE, USE 'sdk' INSTEAD OF 'mockSdk'
-    if (selectedImage && !selectedImage.startsWith('blob:')) {
-      await mockSdk.actions.composeCast({ text: results.caption, embeds: [selectedImage] });
-    } else {
-      await mockSdk.actions.composeCast({ text: results.caption });
+    try {
+      if (selectedImage && !selectedImage.startsWith('blob:')) {
+        // AI IMAGE: Attach URL
+        await sdk.actions.composeCast({ 
+            text: results.caption, 
+            embeds: [selectedImage] 
+        });
+      } else {
+        // LOCAL IMAGE: Text only
+        await sdk.actions.composeCast({ 
+            text: results.caption 
+        });
+      }
+      // sdk.actions.close(); // Uncomment to close app after post
+    } catch(e) {
+      console.error("SDK Error:", e);
+      setError("Could not open composer. Try again.");
     }
   };
 
@@ -324,7 +350,7 @@ export default function App() {
 
             <div className="space-y-4">
                <div className="flex items-center justify-center gap-2">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Select Image (+10 <span className="text-yellow-500">✨</span>)</h3>
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Select Image</h3>
                   <button onClick={regenerateImages} disabled={isImageLoading} className="text-slate-500 hover:text-white transition-all p-1 hover:bg-white/10 rounded-full active:scale-90 disabled:opacity-50">
                      {isImageLoading ? <RotateCcw className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
                   </button>
@@ -368,7 +394,7 @@ export default function App() {
             </div>
 
             {selectedImage ? (
-                <button onClick={postToFarcaster} className="w-full py-4 rounded-2xl font-bold text-lg shadow-2xl bg-gradient-to-br from-purple-600 to-blue-600 text-white hover:shadow-purple-500/30 active:scale-95 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-4">
+                <button onClick={triggerPost} className="w-full py-4 rounded-2xl font-bold text-lg shadow-2xl bg-gradient-to-br from-purple-600 to-blue-600 text-white hover:shadow-purple-500/30 active:scale-95 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-4">
                     <Send className="w-5 h-5" /> Post to Farcaster
                 </button>
             ) : (
