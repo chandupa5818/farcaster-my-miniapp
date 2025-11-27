@@ -1,24 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, X, Upload, RotateCcw, Trophy, Sparkles, Briefcase, Smile, Zap, AlertCircle } from 'lucide-react';
 
-// --- 🚧 IMPORTANT INSTRUCTIONS FOR VS CODE 🚧 ---
-// 1. Run this command in terminal: npm install @farcaster/miniapp-sdk
-// 2. UNCOMMENT the line below when you paste this file into VS Code:
+// --- ⚠️ INSTRUCTION FOR VS CODE ⚠️ ---
+// 1. Run: npm install @farcaster/miniapp-sdk
+// 2. UNCOMMENT THE NEXT LINE IN YOUR LOCAL FILE:
 // import sdk from '@farcaster/miniapp-sdk'; 
 
 // --- 🔑 CONFIGURATION ---
 const GEMINI_API_KEY = ""; 
 
-// --- 🛠️ MOCK SDK (FOR PREVIEW ONLY) ---
-// ⚠️ DELETE THIS ENTIRE CONSTANT WHEN YOU MOVE TO VS CODE ⚠️
+// --- 🛠️ MOCK SDK (FOR PREVIEW ONLY - DELETE THIS IN VS CODE) ---
+// This allows the app to run here. In VS Code, you delete this and use the real import above.
 const sdk = {
   actions: {
     ready: () => console.log("✅ SDK: Ready signal sent"),
     disableNativeGestures: () => console.log("🚫 SDK: Native gestures disabled"),
     composeCast: async ({ text, embeds }) => {
       console.log("📝 SDK: Opening Composer", { text, embeds });
-      // This alert simulates the phone's native composer
-      alert(`📱 OPENING FARCASTER COMPOSER\n\nCaption: ${text}\nImage: ${embeds ? embeds[0] : 'None'}`);
+      // This alert simulates the real phone behavior
+      alert(`📱 OPENING FARCASTER COMPOSER\n\nCaption: ${text}\nEmbeds: ${embeds ? embeds.join(', ') : 'None'}`);
       return new Promise((resolve) => setTimeout(resolve, 500));
     },
     close: () => console.log("❌ SDK: Closing App"),
@@ -126,14 +126,14 @@ export default function App() {
     if (savedPoints) setPoints(parseInt(savedPoints));
 
     const init = async () => {
-      // 1. Disable native gestures
+      // 1. Disable native gestures (Real SDK call)
       try { 
         await sdk.actions.disableNativeGestures(); 
       } catch (e) {
-        // console.log("Gestures not disabled (preview mode)");
+        // Will fail in preview/web, that's expected
       }
       
-      // 2. Notify Farcaster app is ready
+      // 2. Notify app is loaded
       setTimeout(() => {
         sdk.actions.ready(); 
         setIsLoaded(true);
@@ -161,8 +161,7 @@ export default function App() {
     setSelectedImage(null);
 
     try {
-      // In this preview, fetch will fail and trigger fallback (simulating offline mode)
-      // In Vercel/VS Code, this will hit your API and work perfectly.
+      // This will work on Vercel. In this preview, it triggers the fallback.
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -177,7 +176,7 @@ export default function App() {
       setResults(data);
       awardPoints(10, "Idea Generated");
     } catch (e) {
-      console.log("Preview Mode: Using smart fallback...");
+      console.log("Using offline fallback (Preview Mode)...");
       const fallbackData = generateSmartFallback(input);
       const fallbackImages = getImagesFromPrompts(fallbackData.image_prompts);
       setResults({
@@ -223,7 +222,7 @@ export default function App() {
     setSelectedImage(image);
   };
 
-  // ✅ REAL POSTING LOGIC (Triggered by Button)
+  // --- ✅ THIS IS THE FIX: POSTING LOGIC ---
   const triggerPost = async () => {
     if (!results || !selectedImage) return;
 
@@ -233,18 +232,20 @@ export default function App() {
 
     try {
       if (selectedImage && !selectedImage.startsWith('blob:')) {
-        // AI IMAGE: Attach URL
+        // AI IMAGE: Use 'embeds' to attach the URL
         await sdk.actions.composeCast({ 
             text: results.caption, 
             embeds: [selectedImage] 
         });
       } else {
-        // LOCAL IMAGE: Text only
+        // LOCAL IMAGE: Only send text (user must attach manually)
         await sdk.actions.composeCast({ 
             text: results.caption 
         });
       }
-      // sdk.actions.close(); // Uncomment to close app after post
+      
+      // sdk.actions.close(); // Optional: Close app after post
+
     } catch(e) {
       console.error("SDK Error:", e);
       setError("Could not open composer. Try again.");
