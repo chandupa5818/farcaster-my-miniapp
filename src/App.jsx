@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, X, Upload, RotateCcw, Trophy, Sparkles, Briefcase, Smile, Zap, AlertCircle } from 'lucide-react';
 
-// --- ⚠️ INSTRUCTION FOR VS CODE ⚠️ ---
-// 1. Run: npm install @farcaster/miniapp-sdk
-// 2. UNCOMMENT THE NEXT LINE IN YOUR LOCAL FILE:
-// import sdk from '@farcaster/miniapp-sdk'; 
+// --- 🚧 IMPORTANT: VS CODE SETUP 🚧 ---
+// 1. Run in terminal: npm install @farcaster/miniapp-sdk
+// 2. UNCOMMENT the line below in your local VS Code file:
+// import sdk from '@farcaster/miniapp-sdk';
 
 // --- 🔑 CONFIGURATION ---
 const GEMINI_API_KEY = ""; 
