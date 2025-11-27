@@ -1,19 +1,30 @@
 {
   "accountAssociation": {
+    // ⚠️ IMPORTANT: REPLACE THESE THREE LINES
     "header": "eyJmaWQiOjk3MzM1MiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDRGY2VmYjQ5RDA4NjdGMzA0ZEJEZDg2N2JiQzk2MzBhN2UxM2NGMUEifQ",
-    "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItbXktbWluaWFwcC0xazRvLnZlcmNlbC5hcHAifQ",
-    "signature": "e3yjHMXxKsLkqyYF/l88NsH4ObCJ+hLb4mPUeciC4tYD4uQtySTlTkSRmjd3aKxGZM/K0ydvgB9pN/hdSaI8PRs="
+    "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItYWktY29tcG9zZXIudmVyY2VsLmFwcCJ9",
+    "signature": "qvDtDMxA27qtrfb750As1NFwl/cjV8CI/NwKnWqgLiVsz2g2pxuk9fVHOBZGLoTp657WAEQZTWzBi3fB1prAeBs="
   },
   "miniapp": {
-    "version": "1",
     "name": "Magic Caption",
-    "iconUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/icon.png",
+    "version": "1",
+    "iconUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/logo.jpg",
     "homeUrl": "https://farcaster-my-miniapp-1k4o.vercel.app",
-    "description": "Turn rough thoughts into viral posts with AI.",
-    "splashImageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/splash.png",
+    "subtitle": "Viral AI Captions & Images",
+    "description": "Turn rough thoughts into perfect viral posts. Magic Caption uses AI to rewrite your text and generates matching images instantly.",
+    "primaryCategory": "social",
+    "splashImageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/logo.jpg",
     "splashBackgroundColor": "#0f172a",
-    "primaryCategory": "utility",
-    "requiredChains": [], 
-    "requiredCapabilities": []
+    "tags": [
+      "ai",
+      "caption",
+      "social",
+      "content",
+      "tools"
+    ],
+    "buttonTitle": "✨ Create Magic",
+    "ogtitle": "Magic Caption - Viral AI Posts",
+    "ogdescription": "Let AI rewrite your ideas into perfect viral posts.",
+    "ogimageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/logo.jpg"
   }
 }
