@@ -2,11 +2,11 @@
   "frame": {
     "name": "Magic Caption",
     "version": "1",
-    "iconUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/icon.png",
+    "iconUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/logo.jpg",
     "homeUrl": "https://farcaster-my-miniapp-1k4o.vercel.app",
     "imageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/logo.jpg",
     "buttonTitle": "Launch Mini App",
-    "splashImageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/splash.png",
+    "splashImageUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/.well-known/logo.jpg",
     "splashBackgroundColor": "#0f172a",
     "webhookUrl": "https://farcaster-my-miniapp-1k4o.vercel.app/api/webhook",
     "ogTitle": "Magic Caption",
